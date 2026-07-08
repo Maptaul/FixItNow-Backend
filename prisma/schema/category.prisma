@@ -1,0 +1,8 @@
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique @db.VarChar(255)
+  icon     String?   @db.VarChar(255)
+  services Service[]
+
+  @@map("categories")
+}

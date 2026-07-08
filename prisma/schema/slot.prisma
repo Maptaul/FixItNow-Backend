@@ -1,0 +1,14 @@
+model AvailabilitySlot {
+  id           String   @id @default(uuid())
+  technicianId String
+  date         DateTime @db.Date
+  startTime    String   @db.VarChar(10)
+  endTime      String   @db.VarChar(10)
+  isBooked     Boolean  @default(false)
+
+  technician TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+
+  @@unique([technicianId, date, startTime])
+  @@index([technicianId])
+  @@map("availability_slots")
+}
