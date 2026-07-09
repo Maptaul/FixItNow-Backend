@@ -1,56 +1,59 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
+import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import { ZodError } from "zod";
 import { Prisma } from "../../generated/prisma/client";
+import { AppError } from "../utils/AppError";
 
 export const globalErrorHandler = (
   err: any,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ) => {
-  console.log("Error :", err);
+  let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
+  let message = err.message || "Internal Server Error";
+  let errorDetails: unknown = null;
 
-  let statusCode;
-  let errorMessage = err.message || "Internal Server Error";
-  let errorName = err.name || "Internal Server Error";
-
-  if (err instanceof Prisma.PrismaClientValidationError) {
+  if (err instanceof ZodError) {
     statusCode = httpStatus.BAD_REQUEST;
-    errorMessage =
-      "You have provided invalid data. Please check your request and try again.";
+    message = "Validation failed";
+    errorDetails = {
+      issues: err.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      })),
+    };
+  } else if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
   } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      statusCode = httpStatus.BAD_REQUEST;
-      errorMessage = "Duplicate field value entered.";
+      statusCode = httpStatus.CONFLICT;
+      message = `Duplicate value for: ${(err.meta?.target as string[])?.join(", ") ?? "field"}`;
+    } else if (err.code === "P2025") {
+      statusCode = httpStatus.NOT_FOUND;
+      message = "Record not found";
     } else if (err.code === "P2003") {
       statusCode = httpStatus.BAD_REQUEST;
-      errorMessage =
-        "Foreign key constraint failed. Please check your request and try again.";
-    } else if (err.code === "P2025") {
-      statusCode = httpStatus.BAD_REQUEST;
-      errorMessage =
-        "an operation failed because it depends on one or more records that were required but not found. Please check your request and try again.";
+      message = "Foreign key constraint failed";
     }
-  } else if (err instanceof Prisma.PrismaClientInitializationError) {
-    if (err.errorCode === "P1000") {
-      statusCode = httpStatus.UNAUTHORIZED;
-      errorMessage =
-        "Authentication failed. Please check your credentials and try again.";
-    } else if (err.errorCode === "P1001") {
-      statusCode = httpStatus.BAD_REQUEST;
-      errorMessage =
-        "Database server is not available. Please try again later.";
-    }
-  } else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
-    statusCode = httpStatus.INTERNAL_SERVER_ERROR;
-    errorMessage = "An unknown error occurred. Please try again later.";
+    errorDetails = { code: err.code };
+  } else if (err instanceof Prisma.PrismaClientValidationError) {
+    statusCode = httpStatus.BAD_REQUEST;
+    message = "Invalid data provided";
+  } else if (err instanceof TokenExpiredError) {
+    statusCode = httpStatus.UNAUTHORIZED;
+    message = "Token expired. Please login again";
+  } else if (err instanceof JsonWebTokenError) {
+    statusCode = httpStatus.UNAUTHORIZED;
+    message = "Invalid token";
   }
 
-  res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+  res.status(statusCode).json({
     success: false,
-    statusCode: statusCode || httpStatus.INTERNAL_SERVER_ERROR,
-    name: errorName,
-    message: errorMessage,
-    error: err.stack,
+    statusCode,
+    message,
+    errorDetails,
   });
 };
