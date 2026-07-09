@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import statusCode from "http-status";
+import httpStatus from "http-status";
 import { JwtPayload } from "jsonwebtoken";
 import { Role } from "../../generated/prisma/client";
 import config from "../config";
 import { prisma } from "../lib/prisma";
+import { AppError } from "../utils/AppError";
 import { catchAsync } from "../utils/catchAsync";
 import { jwtUtils } from "../utils/jwt";
 
@@ -19,53 +20,56 @@ declare global {
     }
   }
 }
-// auth (Role.ADMIN, Role.USER, Role.AUTHOR)
 
 export const auth = (...requiredRoles: Role[]) => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies.accessToken
+  return catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
+    const token = req.cookies?.accessToken
       ? req.cookies.accessToken
       : req.headers.authorization?.startsWith("Bearer ")
-        ? req.headers.authorization?.split(" ")[1]
+        ? req.headers.authorization.split(" ")[1]
         : req.headers.authorization;
 
     if (!token) {
-      throw new Error("No token provided");
+      throw new AppError(httpStatus.UNAUTHORIZED, "No token provided");
     }
 
     const verifiedToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
+    if (!verifiedToken.success) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Invalid or expired token. Please login again",
+      );
+    }
 
-    if (verifiedToken.success === false) {
-      throw new Error(verifiedToken.error || "Token verification failed");
-    }
-    const { email, name, id, role } = verifiedToken.data as JwtPayload;
-    if (requiredRoles.length && !requiredRoles.includes(role)) {
-      return res.status(403).json({
-        success: false,
-        statusCode: statusCode.FORBIDDEN,
-        message:
-          "Forbidden: You do not have permission to access this resource",
-      });
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        id,
-        email,
-        name,
-        role,
-      },
-    });
+    const { id } = verifiedToken.data as JwtPayload;
+
+    // Look up by id only — a token stays valid even if the user later
+    // changes their name or email.
+    const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        statusCode: statusCode.NOT_FOUND,
-        message: "User not found",
-      });
+      throw new AppError(httpStatus.UNAUTHORIZED, "User no longer exists");
     }
     if (user.activeStatus === "BLOCKED") {
-      throw new Error("User is blocked. Please contact support.");
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "User is blocked. Please contact support.",
+      );
     }
-    req.user = { email, name, id, role };
+
+    // Authorize against the current role in the database, not the token.
+    if (requiredRoles.length && !requiredRoles.includes(user.role)) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You do not have permission to access this resource",
+      );
+    }
+
+    req.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
     next();
   });
 };

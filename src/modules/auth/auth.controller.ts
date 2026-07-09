@@ -5,7 +5,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import { authService } from "./auth.service";
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
-  const { accessToken, refreshToken } = await authService.loginUser(req.body);
+  const { accessToken } = await authService.loginUser(req.body);
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
@@ -13,42 +13,15 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     sameSite: "none",
     maxAge: 1000 * 60 * 60 * 24, // 1 day
   });
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  });
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: "User logged in successfully",
-    data: { accessToken, refreshToken },
-  });
-});
-
-const refreshToken = catchAsync(async (req: Request, res: Response) => {
-  const { newAccessToken } = await authService.refreshToken(
-    req.cookies?.refreshToken,
-  );
-
-  res.cookie("accessToken", newAccessToken, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24, // 1 day
-  });
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Token refreshed successfully",
-    data: { accessToken: newAccessToken },
+    data: { accessToken },
   });
 });
 
 export const authController = {
   loginUser,
-  refreshToken,
 };
