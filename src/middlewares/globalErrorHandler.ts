@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { ZodError } from "zod";
 import { Prisma } from "../../generated/prisma/client";
 import { AppError } from "../utils/AppError";
@@ -42,10 +42,10 @@ export const globalErrorHandler = (
   } else if (err instanceof Prisma.PrismaClientValidationError) {
     statusCode = httpStatus.BAD_REQUEST;
     message = "Invalid data provided";
-  } else if (err instanceof TokenExpiredError) {
+  } else if (err instanceof jwt.TokenExpiredError) {
     statusCode = httpStatus.UNAUTHORIZED;
     message = "Token expired. Please login again";
-  } else if (err instanceof JsonWebTokenError) {
+  } else if (err instanceof jwt.JsonWebTokenError) {
     statusCode = httpStatus.UNAUTHORIZED;
     message = "Invalid token";
   }
