@@ -7,7 +7,8 @@
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:5000" },
     { "key": "accessToken", "value": "" },
-    { "key": "categoryId", "value": "" }
+    { "key": "categoryId", "value": "" },
+    { "key": "serviceId", "value": "" }
   ],
   "item": [
     {
@@ -106,6 +107,37 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"admin@fixitnow.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login (Technician)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res?.data?.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "  console.log('technician accessToken saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tech@fixitnow.com\",\n  \"password\": \"123456\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -252,6 +284,116 @@
               "raw": "{{baseUrl}}/api/admin/categories/{{categoryId}}",
               "host": ["{{baseUrl}}"],
               "path": ["api", "admin", "categories", "{{categoryId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Services (Public)",
+      "item": [
+        {
+          "name": "Get all services",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services"]
+            }
+          }
+        },
+        {
+          "name": "Get services (filtered)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/services?categoryId={{categoryId}}&search=AC&minPrice=100&maxPrice=5000&location=Dhaka&minRating=0&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services"],
+              "query": [
+                { "key": "categoryId", "value": "{{categoryId}}" },
+                { "key": "search", "value": "AC" },
+                { "key": "minPrice", "value": "100" },
+                { "key": "maxPrice", "value": "5000" },
+                { "key": "location", "value": "Dhaka" },
+                { "key": "minRating", "value": "0" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Technician - Services",
+      "description": "Run 'Login (Technician)' first. Create a category (admin) to get a categoryId.",
+      "item": [
+        {
+          "name": "Create service",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res?.data?.id) {",
+                  "  pm.collectionVariables.set('serviceId', res.data.id);",
+                  "  console.log('serviceId saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"title\": \"AC Repair\",\n  \"description\": \"Fix any AC unit\",\n  \"price\": 1500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/technician/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "technician", "services"]
+            }
+          }
+        },
+        {
+          "name": "Update service",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 1800,\n  \"title\": \"AC Repair & Service\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/technician/services/{{serviceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "technician", "services", "{{serviceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete service",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/technician/services/{{serviceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "technician", "services", "{{serviceId}}"]
             }
           }
         }
