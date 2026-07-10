@@ -1,12 +1,13 @@
 {
   "info": {
     "name": "FixItNow API",
-    "description": "Home Service Platform backend. Base URL and token are collection variables.",
+    "description": "Home Service Platform backend. Base URL and token are collection variables. Run a Login request first — it auto-saves accessToken. For admin routes, run 'Login (Admin)'.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:5000" },
-    { "key": "accessToken", "value": "" }
+    { "key": "accessToken", "value": "" },
+    { "key": "categoryId", "value": "" }
   ],
   "item": [
     {
@@ -81,6 +82,37 @@
               "path": ["api", "auth", "login"]
             }
           }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res?.data?.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "  console.log('admin accessToken saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@fixitnow.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
         }
       ]
     },
@@ -117,6 +149,109 @@
               "raw": "{{baseUrl}}/api/users/my-profile",
               "host": ["{{baseUrl}}"],
               "path": ["api", "users", "my-profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories (Public)",
+      "item": [
+        {
+          "name": "Get all categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Categories",
+      "description": "Run 'Login (Admin)' first so accessToken is an admin token.",
+      "item": [
+        {
+          "name": "Get all categories (admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Create category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res?.data?.id) {",
+                  "  pm.collectionVariables.set('categoryId', res.data.id);",
+                  "  console.log('categoryId saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plumbing\",\n  \"icon\": \"wrench\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Update category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plumbing & Pipes\",\n  \"icon\": \"pipe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "categories", "{{categoryId}}"]
             }
           }
         }
