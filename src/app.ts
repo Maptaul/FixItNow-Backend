@@ -7,6 +7,8 @@ import { notFound } from "./middlewares/notFound";
 import { authRouter } from "./modules/auth/auth.route";
 import { bookingRoutes } from "./modules/booking/booking.route";
 import { categoryRoutes } from "./modules/category/category.route";
+import { paymentRoutes } from "./modules/payment/payment.route";
+import { reviewRoutes } from "./modules/review/review.route";
 import { serviceRoutes } from "./modules/service/service.route";
 import { technicianRoutes } from "./modules/technician/technician.route";
 import { userRouter } from "./modules/user/user.route";
@@ -17,6 +19,12 @@ app.use(
     origin: config.app_url,
     credentials: true,
   }),
+);
+
+// Stripe webhook needs the raw body for signature verification — mount before json().
+app.use(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
 );
 
 app.use(express.json());
@@ -37,6 +45,8 @@ app.use("/api/technicians", technicianRoutes.publicRouter);
 app.use("/api/technician/bookings", bookingRoutes.technicianRouter);
 app.use("/api/technician", technicianRoutes.selfRouter);
 app.use("/api/bookings", bookingRoutes.customerRouter);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 app.use(notFound);
 app.use(globalErrorHandler);
