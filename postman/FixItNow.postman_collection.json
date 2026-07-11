@@ -13,7 +13,8 @@
     { "key": "slotId", "value": "" },
     { "key": "bookingId", "value": "" },
     { "key": "sessionId", "value": "" },
-    { "key": "paymentId", "value": "" }
+    { "key": "paymentId", "value": "" },
+    { "key": "userId", "value": "" }
   ],
   "item": [
     {
@@ -746,6 +747,63 @@
               "raw": "{{baseUrl}}/api/reviews",
               "host": ["{{baseUrl}}"],
               "path": ["api", "reviews"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Users & Bookings",
+      "description": "Run 'Login (Admin)' first (admin@fixitnow.com / admin123).",
+      "item": [
+        {
+          "name": "Get all users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users?role=CUSTOMER&status=ACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                { "key": "role", "value": "CUSTOMER" },
+                { "key": "status", "value": "ACTIVE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ban / Unban user",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activeStatus\": \"BLOCKED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get all bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "bookings"]
             }
           }
         }
