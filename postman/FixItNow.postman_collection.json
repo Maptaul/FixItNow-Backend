@@ -1,11 +1,11 @@
 {
   "info": {
     "name": "FixItNow API",
-    "description": "Home Service Platform backend. Base URL and token are collection variables. Run a Login request first — it auto-saves accessToken. For admin routes, run 'Login (Admin)'.",
+    "description": "Home Service Platform backend.\n\nLive API: https://fixitbackend.vercel.app\nLocal: http://localhost:5000 (change the `baseUrl` variable to switch).\n\nRun a Login request first — it auto-saves accessToken. For admin routes, run 'Login (Admin)'; admin creds: admin@fixitnow.com / admin123.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "baseUrl", "value": "https://fixitbackend.vercel.app" },
     { "key": "accessToken", "value": "" },
     { "key": "categoryId", "value": "" },
     { "key": "serviceId", "value": "" },

@@ -5,6 +5,8 @@ qualified technicians, pay via **Stripe**, track bookings and leave reviews.
 Technicians manage their profile, availability and jobs. Admins manage users,
 bookings and service categories.
 
+**🌐 Live API:** https://fixitbackend.vercel.app
+
 ---
 
 ## 🔑 Admin Credentials
@@ -78,7 +80,7 @@ Server starts at `http://localhost:5000`.
 
 ## 📚 API Endpoints
 
-Base URL: `http://localhost:5000`
+Base URL (live): `https://fixitbackend.vercel.app` · (local): `http://localhost:5000`
 
 ### Auth
 
