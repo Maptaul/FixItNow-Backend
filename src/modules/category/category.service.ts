@@ -14,6 +14,15 @@ const getAllCategoriesFromDB = async () => {
 };
 
 const createCategoryIntoDB = async (payload: CreateCategoryPayload) => {
+  const exists = await prisma.category.findUnique({
+    where: { name: payload.name },
+  });
+  if (exists) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      `Category "${payload.name}" already exists`,
+    );
+  }
   const category = await prisma.category.create({ data: payload });
   return category;
 };
@@ -23,6 +32,19 @@ const updateCategoryInDB = async (
   payload: UpdateCategoryPayload,
 ) => {
   await prisma.category.findUniqueOrThrow({ where: { id } });
+
+  if (payload.name) {
+    const clash = await prisma.category.findUnique({
+      where: { name: payload.name },
+    });
+    if (clash && clash.id !== id) {
+      throw new AppError(
+        httpStatus.CONFLICT,
+        `Category "${payload.name}" already exists`,
+      );
+    }
+  }
+
   const category = await prisma.category.update({ where: { id }, data: payload });
   return category;
 };

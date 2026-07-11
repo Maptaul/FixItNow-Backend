@@ -6,26 +6,23 @@ import { technicianController } from "./technician.controller";
 import { technicianValidation } from "./technician.validation";
 
 // Public — /api/technicians
-const technicianRouter = Router();
-technicianRouter.get("/", technicianController.getAllTechnicians);
-technicianRouter.get("/:id", technicianController.getTechnicianById);
+const publicRouter = Router();
+publicRouter.get("/", technicianController.getAllTechnicians);
+publicRouter.get("/:id", technicianController.getTechnicianById);
 
 // Technician self-service — /api/technician
-const technicianSelfRouter = Router();
-technicianSelfRouter.put(
+const selfRouter = Router();
+selfRouter.put(
   "/profile",
   auth(Role.TECHNICIAN),
   validateRequest(technicianValidation.updateProfileSchema),
   technicianController.updateProfile,
 );
-technicianSelfRouter.put(
+selfRouter.put(
   "/availability",
   auth(Role.TECHNICIAN),
   validateRequest(technicianValidation.availabilitySchema),
   technicianController.setAvailability,
 );
 
-export const technicianRoutes = {
-  technicianRouter,
-  technicianSelfRouter,
-};
+export const technicianRoutes = { publicRouter, selfRouter };

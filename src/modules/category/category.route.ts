@@ -5,35 +5,25 @@ import { validateRequest } from "../../middlewares/validateRequest";
 import { categoryController } from "./category.controller";
 import { categoryValidation } from "./category.validation";
 
+// Public — GET /api/categories
+const publicRouter = Router();
+publicRouter.get("/", categoryController.getAllCategories);
 
-const categoryRouter = Router();
-categoryRouter.get("/", categoryController.getAllCategories);
-
-const adminCategoryRouter = Router();
-adminCategoryRouter.get(
-  "/",
-  auth(Role.ADMIN),
-  categoryController.getAllCategories,
-);
-adminCategoryRouter.post(
+// Admin — /api/admin/categories
+const adminRouter = Router();
+adminRouter.get("/", auth(Role.ADMIN), categoryController.getAllCategories);
+adminRouter.post(
   "/",
   auth(Role.ADMIN),
   validateRequest(categoryValidation.createSchema),
   categoryController.createCategory,
 );
-adminCategoryRouter.put(
+adminRouter.put(
   "/:id",
   auth(Role.ADMIN),
   validateRequest(categoryValidation.updateSchema),
   categoryController.updateCategory,
 );
-adminCategoryRouter.delete(
-  "/:id",
-  auth(Role.ADMIN),
-  categoryController.deleteCategory,
-);
+adminRouter.delete("/:id", auth(Role.ADMIN), categoryController.deleteCategory);
 
-export const categoryRoutes = {
-  categoryRouter,
-  adminCategoryRouter,
-};
+export const categoryRoutes = { publicRouter, adminRouter };
