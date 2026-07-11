@@ -5,8 +5,6 @@ qualified technicians, pay via **Stripe**, track bookings and leave reviews.
 Technicians manage their profile, availability and jobs. Admins manage users,
 bookings and service categories.
 
-
-
 ---
 
 ## 🔑 Admin Credentials
@@ -22,14 +20,14 @@ Created by the seed script (`npm run seed`).
 
 ## 🛠️ Tech Stack
 
-| Tech | Purpose |
-|------|---------|
-| Node.js + Express 5 | REST API |
-| TypeScript (strict) | Type safety |
-| PostgreSQL + Prisma 7 (`@prisma/adapter-pg`) | Database + ORM |
-| JWT + bcryptjs | Auth + password hashing |
-| Zod | Request validation |
-| Stripe | Payment integration |
+| Tech                                         | Purpose                 |
+| -------------------------------------------- | ----------------------- |
+| Node.js + Express 5                          | REST API                |
+| TypeScript (strict)                          | Type safety             |
+| PostgreSQL + Prisma 7 (`@prisma/adapter-pg`) | Database + ORM          |
+| JWT + bcryptjs                               | Auth + password hashing |
+| Zod                                          | Request validation      |
+| Stripe                                       | Payment integration     |
 
 ---
 
@@ -69,12 +67,12 @@ Server starts at `http://localhost:5000`.
 
 ### Scripts
 
-| Script | Does |
-|--------|------|
-| `npm run dev` | Start with hot reload |
+| Script          | Does                          |
+| --------------- | ----------------------------- |
+| `npm run dev`   | Start with hot reload         |
 | `npm run build` | Compile TypeScript to `dist/` |
-| `npm start` | Run compiled build |
-| `npm run seed` | Seed admin + categories |
+| `npm start`     | Run compiled build            |
+| `npm run seed`  | Seed admin + categories       |
 
 ---
 
@@ -83,64 +81,71 @@ Server starts at `http://localhost:5000`.
 Base URL: `http://localhost:5000`
 
 ### Auth
-| Method | Endpoint | Access |
-|--------|----------|--------|
-| POST | `/api/auth/register` | Public (role: CUSTOMER \| TECHNICIAN) |
-| POST | `/api/auth/login` | Public |
-| GET | `/api/auth/me` | Any logged-in |
-| PUT | `/api/auth/my-profile` | Any logged-in |
+
+| Method | Endpoint               | Access                                |
+| ------ | ---------------------- | ------------------------------------- |
+| POST   | `/api/auth/register`   | Public (role: CUSTOMER \| TECHNICIAN) |
+| POST   | `/api/auth/login`      | Public                                |
+| GET    | `/api/auth/me`         | Any logged-in                         |
+| PUT    | `/api/auth/my-profile` | Any logged-in                         |
 
 ### Public
-| Method | Endpoint |
-|--------|----------|
-| GET | `/api/categories` |
-| GET | `/api/services` (filters: `categoryId, location, minPrice, maxPrice, minRating, search, page, limit`) |
-| GET | `/api/technicians` (filters: `location, minRating, categoryId, page, limit`) |
-| GET | `/api/technicians/:id` |
+
+| Method | Endpoint                                                                                              |
+| ------ | ----------------------------------------------------------------------------------------------------- |
+| GET    | `/api/categories`                                                                                     |
+| GET    | `/api/services` (filters: `categoryId, location, minPrice, maxPrice, minRating, search, page, limit`) |
+| GET    | `/api/technicians` (filters: `location, minRating, categoryId, page, limit`)                          |
+| GET    | `/api/technicians/:id`                                                                                |
 
 ### Customer — Bookings
-| Method | Endpoint |
-|--------|----------|
-| POST | `/api/bookings` |
-| GET | `/api/bookings` |
-| GET | `/api/bookings/:id` |
-| PATCH | `/api/bookings/:id/cancel` |
+
+| Method | Endpoint                   |
+| ------ | -------------------------- |
+| POST   | `/api/bookings`            |
+| GET    | `/api/bookings`            |
+| GET    | `/api/bookings/:id`        |
+| PATCH  | `/api/bookings/:id/cancel` |
 
 ### Customer — Payments (Stripe)
-| Method | Endpoint | Notes |
-|--------|----------|-------|
-| POST | `/api/payments/create` | Checkout session for an ACCEPTED booking |
-| POST | `/api/payments/confirm` | Verify session → mark booking PAID |
-| GET | `/api/payments` | Payment history |
-| GET | `/api/payments/:id` | Payment detail |
-| POST | `/api/payments/webhook` | Stripe webhook (raw body) |
+
+| Method | Endpoint                | Notes                                    |
+| ------ | ----------------------- | ---------------------------------------- |
+| POST   | `/api/payments/create`  | Checkout session for an ACCEPTED booking |
+| POST   | `/api/payments/confirm` | Verify session → mark booking PAID       |
+| GET    | `/api/payments`         | Payment history                          |
+| GET    | `/api/payments/:id`     | Payment detail                           |
+| POST   | `/api/payments/webhook` | Stripe webhook (raw body)                |
 
 ### Customer — Reviews
-| Method | Endpoint | Notes |
-|--------|----------|-------|
-| POST | `/api/reviews` | Only own, COMPLETED booking, once |
+
+| Method | Endpoint       | Notes                             |
+| ------ | -------------- | --------------------------------- |
+| POST   | `/api/reviews` | Only own, COMPLETED booking, once |
 
 ### Technician
-| Method | Endpoint |
-|--------|----------|
-| PUT | `/api/technician/profile` |
-| PUT | `/api/technician/availability` |
-| POST | `/api/technician/services` |
-| PUT | `/api/technician/services/:id` |
+
+| Method | Endpoint                       |
+| ------ | ------------------------------ |
+| PUT    | `/api/technician/profile`      |
+| PUT    | `/api/technician/availability` |
+| POST   | `/api/technician/services`     |
+| PUT    | `/api/technician/services/:id` |
 | DELETE | `/api/technician/services/:id` |
-| GET | `/api/technician/bookings` |
-| PATCH | `/api/technician/bookings/:id` |
+| GET    | `/api/technician/bookings`     |
+| PATCH  | `/api/technician/bookings/:id` |
 
 ### Admin
-| Method | Endpoint |
-|--------|----------|
-| GET | `/api/admin/users` (filters: `role, status`) |
-| PATCH | `/api/admin/users/:id` (ban/unban) |
-| GET | `/api/admin/bookings` |
-| GET | `/api/admin/categories` |
-| POST | `/api/admin/categories` |
-| PUT | `/api/admin/categories/:id` |
-| DELETE | `/api/admin/categories/:id` |
+
+| Method | Endpoint                                     |
+| ------ | -------------------------------------------- |
+| GET    | `/api/admin/users` (filters: `role, status`) |
+| PATCH  | `/api/admin/users/:id` (ban/unban)           |
+| GET    | `/api/admin/bookings`                        |
+| GET    | `/api/admin/categories`                      |
+| POST   | `/api/admin/categories`                      |
+| PUT    | `/api/admin/categories/:id`                  |
+| DELETE | `/api/admin/categories/:id`                  |
 
 ---
 
@@ -153,6 +158,7 @@ Import `postman/FixItNow.postman_collection.json` into Postman.
 - Create requests auto-save ids (`categoryId`, `serviceId`, `bookingId`, `sessionId`, …).
 
 ### Testing a Stripe payment
+
 1. Booking must be `ACCEPTED` (technician accepts it).
 2. `POST /api/payments/create` → open the returned `checkoutUrl` in a browser.
 3. Pay with test card `4242 4242 4242 4242`, any future expiry + any CVC.
@@ -163,9 +169,9 @@ Import `postman/FixItNow.postman_collection.json` into Postman.
 ## 📦 Submission
 
 ```
-Backend Repo   : https://github.com/<username>/fixitnow-backend
-Live API       : https://<your-app>.onrender.com
-API Docs       : postman/FixItNow.postman_collection.json (or published link)
+Backend Repo   : https://github.com/Maptaul/FixItNow-Backend
+Live API       : https://fixitbackend.vercel.app
+API Docs       : postman/FixItNow.postman_collection.json
 Admin Email    : admin@fixitnow.com
 Admin Password : admin123
 ```
