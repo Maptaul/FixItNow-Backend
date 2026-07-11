@@ -6,6 +6,21 @@ generated
 
 .vscode
 
+.env.*
+
+logs
+*.log
+coverage
+.nyc_output
+.cache
+*.tsbuildinfo
+
+tmp
+temp
+
+.DS_Store
+Thumbs.db
+
 instruction.md
 
 .vercel

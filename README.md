@@ -5,7 +5,7 @@ qualified technicians, pay via **Stripe**, track bookings and leave reviews.
 Technicians manage their profile, availability and jobs. Admins manage users,
 bookings and service categories.
 
-Assignment 4 — Programming Hero Level 2.
+
 
 ---
 
