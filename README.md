@@ -168,12 +168,21 @@ Import `postman/FixItNow.postman_collection.json` into Postman.
 
 ---
 
+## 🎥 Demo Video
+
+- Part 1: https://www.loom.com/share/185ba3fd9baa40d09287bb8b9767bf6c
+- Part 2: https://www.loom.com/share/074d61cf493b4893b492a8e2a2fdbe34
+
+---
+
 ## 📦 Submission
 
 ```
 Backend Repo   : https://github.com/Maptaul/FixItNow-Backend
 Live API       : https://fixitbackend.vercel.app
 API Docs       : postman/FixItNow.postman_collection.json
+Demo Video 1   : https://www.loom.com/share/185ba3fd9baa40d09287bb8b9767bf6c
+Demo Video 2   : https://www.loom.com/share/074d61cf493b4893b492a8e2a2fdbe34
 Admin Email    : admin@fixitnow.com
 Admin Password : admin123
 ```
