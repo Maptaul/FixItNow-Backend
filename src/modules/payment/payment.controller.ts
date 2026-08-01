@@ -9,6 +9,7 @@ const createPayment = catchAsync(async (req: Request, res: Response) => {
   const result = await paymentService.createPaymentSession(
     req.user?.id as string,
     req.body.bookingId,
+    req.body.origin,
   );
 
   sendResponse(res, {

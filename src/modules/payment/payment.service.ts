@@ -32,8 +32,44 @@ const paymentInclude = {
   },
 };
 
+/**
+ * Where Stripe returns the customer after checkout.
+ *
+ * The caller may ask for its own origin — local dev and the deployed
+ * frontend are different hosts, and a single APP_URL can only ever be right
+ * for one of them. The request is honoured **only** when it exactly matches
+ * an entry in APP_ORIGINS (the same allow-list CORS uses), so this can never
+ * be talked into redirecting a paying customer somewhere arbitrary.
+ *
+ * Falls back to the first configured origin, then APP_URL.
+ */
+const resolveReturnOrigin = (requested?: string): string => {
+  const normalized = requested?.replace(/\/+$/, "");
+
+  if (normalized && config.app_origins.includes(normalized)) {
+    return normalized;
+  }
+
+  const fallback = config.app_origins[0] ?? config.app_url;
+
+  if (!fallback) {
+    // Stripe rejects a relative success_url with an opaque error; say what's
+    // actually wrong instead.
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "No frontend origin is configured. Set APP_ORIGINS (or APP_URL) on the API.",
+    );
+  }
+
+  return fallback;
+};
+
 // Create a Stripe Checkout Session for an ACCEPTED booking.
-const createPaymentSession = async (userId: string, bookingId: string) => {
+const createPaymentSession = async (
+  userId: string,
+  bookingId: string,
+  origin?: string,
+) => {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
@@ -59,6 +95,7 @@ const createPaymentSession = async (userId: string, bookingId: string) => {
   }
 
   const unitAmount = Math.round(Number(booking.totalAmount) * 100);
+  const returnOrigin = resolveReturnOrigin(origin);
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -74,8 +111,8 @@ const createPaymentSession = async (userId: string, bookingId: string) => {
         quantity: 1,
       },
     ],
-    success_url: `${config.app_url}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${config.app_url}/payment/cancel`,
+    success_url: `${returnOrigin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${returnOrigin}/payment/cancel`,
     metadata: { bookingId: booking.id, userId },
   });
 
