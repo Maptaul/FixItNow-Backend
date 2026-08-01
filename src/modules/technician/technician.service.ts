@@ -43,12 +43,23 @@ const getAllTechniciansFromDB = async (filters: TechnicianFilters) => {
   return { data, meta: { page: pageNum, limit: limitNum, total } };
 };
 
+// Midnight today — availability is only ever shown from the current day on.
+const startOfToday = () => {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+};
+
 const getTechnicianByIdFromDB = async (id: string) => {
   const technician = await prisma.technicianProfile.findUnique({
     where: { id },
     include: {
       user: { select: { id: true, name: true } },
       services: { include: { category: true } },
+      // Upcoming slots so the booking UI can show available vs. booked.
+      slots: {
+        where: { date: { gte: startOfToday() } },
+        orderBy: [{ date: "asc" }, { startTime: "asc" }],
+      },
     },
   });
   if (!technician) {
@@ -85,6 +96,14 @@ const updateProfileInDB = async (
   return updated;
 };
 
+const getMyAvailabilityFromDB = async (userId: string) => {
+  const profile = await getMyProfileOrThrow(userId);
+  return prisma.availabilitySlot.findMany({
+    where: { technicianId: profile.id },
+    orderBy: [{ date: "asc" }, { startTime: "asc" }],
+  });
+};
+
 const setAvailabilityInDB = async (
   userId: string,
   payload: SetAvailabilityPayload,
@@ -117,5 +136,6 @@ export const technicianService = {
   getAllTechniciansFromDB,
   getTechnicianByIdFromDB,
   updateProfileInDB,
+  getMyAvailabilityFromDB,
   setAvailabilityInDB,
 };

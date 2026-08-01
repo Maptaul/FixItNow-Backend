@@ -18,6 +18,11 @@ selfRouter.put(
   validateRequest(technicianValidation.updateProfileSchema),
   technicianController.updateProfile,
 );
+selfRouter.get(
+  "/availability",
+  auth(Role.TECHNICIAN),
+  technicianController.getMyAvailability,
+);
 selfRouter.put(
   "/availability",
   auth(Role.TECHNICIAN),

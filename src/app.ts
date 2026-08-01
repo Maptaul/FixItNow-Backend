@@ -17,16 +17,13 @@ import { userRouter } from "./modules/user/user.route";
 const app: Application = express();
 app.use(
   cors({
-    origin: config.app_url,
+    origin: config.app_origins,
     credentials: true,
   }),
 );
 
 // Stripe webhook needs the raw body for signature verification — mount before json().
-app.use(
-  "/api/payments/webhook",
-  express.raw({ type: "application/json" }),
-);
+app.use("/api/payments/webhook", express.raw({ type: "application/json" }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

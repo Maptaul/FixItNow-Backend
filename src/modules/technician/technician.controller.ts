@@ -46,6 +46,19 @@ const updateProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyAvailability = catchAsync(async (req: Request, res: Response) => {
+  const slots = await technicianService.getMyAvailabilityFromDB(
+    req.user?.id as string,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Availability fetched successfully",
+    data: slots,
+  });
+});
+
 const setAvailability = catchAsync(async (req: Request, res: Response) => {
   const slots = await technicianService.setAvailabilityInDB(
     req.user?.id as string,
@@ -64,5 +77,6 @@ export const technicianController = {
   getAllTechnicians,
   getTechnicianById,
   updateProfile,
+  getMyAvailability,
   setAvailability,
 };
