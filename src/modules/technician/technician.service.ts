@@ -33,7 +33,7 @@ const getAllTechniciansFromDB = async (filters: TechnicianFilters) => {
       take: limitNum,
       orderBy: { avgRating: "desc" },
       include: {
-        user: { select: { id: true, name: true } },
+        user: { select: { id: true, name: true, avatarUrl: true } },
         services: { include: { category: true } },
       },
     }),
@@ -53,7 +53,7 @@ const getTechnicianByIdFromDB = async (id: string) => {
   const technician = await prisma.technicianProfile.findUnique({
     where: { id },
     include: {
-      user: { select: { id: true, name: true } },
+      user: { select: { id: true, name: true, avatarUrl: true } },
       services: { include: { category: true } },
       // Upcoming slots so the booking UI can show available vs. booked.
       slots: {

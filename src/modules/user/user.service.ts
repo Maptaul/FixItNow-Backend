@@ -50,9 +50,15 @@ const updateMyProfileInDB = async (
   userId: string,
   payload: UpdateProfilePayload,
 ) => {
-  const data: { name?: string; password?: string } = {};
+  const data: { name?: string; password?: string; avatarUrl?: string | null } =
+    {};
 
   if (payload.name) data.name = payload.name;
+  // Checked against undefined, not truthiness: "" is the caller asking us to
+  // remove the picture, and a truthy test would silently ignore that.
+  if (payload.avatarUrl !== undefined) {
+    data.avatarUrl = payload.avatarUrl || null;
+  }
   if (payload.password) {
     data.password = await bcrypt.hash(
       payload.password,

@@ -5,6 +5,9 @@ model User {
   password     String
   role         Role         @default(CUSTOMER)
   activeStatus ActiveStatus @default(ACTIVE)
+  // A link, not a file: there is no upload pipeline here, so the client
+  // stores the picture wherever it likes and sends us the URL.
+  avatarUrl    String?      @db.VarChar(500)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 

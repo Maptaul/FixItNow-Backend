@@ -8,4 +8,6 @@ export interface RegisterUserPayload {
 export interface UpdateProfilePayload {
   name?: string;
   password?: string;
+  /** Empty string clears the picture; `undefined` leaves it alone. */
+  avatarUrl?: string | null;
 }

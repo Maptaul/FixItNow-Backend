@@ -56,7 +56,7 @@ const getAllServicesFromDB = async (filters: ServiceFilters) => {
       include: {
         category: true,
         technician: {
-          include: { user: { select: { id: true, name: true } } },
+          include: { user: { select: { id: true, name: true, avatarUrl: true } } },
         },
       },
     }),

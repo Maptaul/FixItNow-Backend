@@ -27,7 +27,7 @@ const paymentInclude = {
   booking: {
     include: {
       service: { select: { id: true, title: true } },
-      customer: { select: { id: true, name: true, email: true } },
+      customer: { select: { id: true, name: true, email: true, avatarUrl: true } },
     },
   },
 };

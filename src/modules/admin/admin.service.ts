@@ -60,8 +60,8 @@ const getAllBookingsFromDB = async () => {
   return prisma.booking.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      customer: { select: { id: true, name: true, email: true } },
-      technician: { include: { user: { select: { id: true, name: true } } } },
+      customer: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      technician: { include: { user: { select: { id: true, name: true, avatarUrl: true } } } },
       service: { select: { id: true, title: true } },
       payment: true,
       review: true,
